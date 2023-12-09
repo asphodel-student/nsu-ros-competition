@@ -31,4 +31,9 @@ def generate_launch_description():
             package='sign_detector', 
             executable='sign_detection',
             name='sign_detection'),
+            
+        Node(
+            package='crosswalk', 
+            executable='crosswalk',
+            name='crosswalk'),
     ])

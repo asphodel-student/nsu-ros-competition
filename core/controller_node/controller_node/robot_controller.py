@@ -3,6 +3,7 @@ from rclpy.node import Node
 
 from messages.msg import TrafficSign
 from messages.msg import TrafficLight
+from messages.msg import CrosswalkCheck
 from messages.msg import ControlMsg
 
 class Controller(Node):
@@ -11,12 +12,14 @@ class Controller(Node):
 
         self.traffic_sign_detector_subscription = self.create_subscription(TrafficSign, '/sign_topic', self.get_traffic_sign, 10)
         self.traffic_light_checker_subscription = self.create_subscription(TrafficLight, '/traffic_light', self.get_traffic_light_color, 10)
+        self.crosswalk_checker_subscription = self.create_subscription(CrosswalkCheck, '/crosswalk', self.get_crosswalk_status, 10)
 
         self.pid_control = self.create_publisher(ControlMsg, '/pid_control', 1)
         self.sign_detector_control = self.create_publisher(ControlMsg, '/sign_controller', 1)
         self.tl_detector_control = self.create_publisher(ControlMsg, '/tl_control', 1)
+        self.crosswalk_control = self.create_publisher(ControlMsg, '/crosswalk_control', 1)
 
-        self.is_allowed_to_move = False
+        self.is_allowed_to_move = True
         self.current_traffic_sign = -1
 
 
@@ -31,14 +34,17 @@ class Controller(Node):
 
         print(self.current_traffic_sign)
 
+    def get_crosswalk_status(self, msg):
+        if msg.is_allowed_to_move_forward == True:
+            self.shutdown_pid()
+        else:
+            self.turn_on_pid()
 
     def get_traffic_light_color(self, msg):
         """
         Проверка сигнала светофора
         """
         if msg.is_green == True:
-            self.is_allowed_to_move = True
-
             # Turn off the light checker node
             self.shutdown_light_checker()
 
@@ -63,9 +69,7 @@ class Controller(Node):
         """
         msg = ControlMsg()
         msg.mode = True
-
-        if self.is_allowed_to_move == True:
-            self.pid_control.publish(msg)
+        self.pid_control.publish(msg)
 
     def shutdown_sign_detector(self):
         """
@@ -90,6 +94,22 @@ class Controller(Node):
         msg = ControlMsg()
         msg.mode = False
         self.tl_detector_control.publish(msg)
+
+    def turn_on_sign_detector(self):
+        """
+        Включает ноду распознавания пешехода на переходе
+        """
+        msg = ControlMsg()
+        msg.mode = True
+        self.crosswalk_control.publish(msg)
+
+    def shutdown_light_checker(self):
+        """
+        Позволяет выключить ноду распознавания пешехода на переходе
+        """
+        msg = ControlMsg()
+        msg.mode = False
+        self.crosswalk_control.publish(msg)
 
 
 def main(args=None):
