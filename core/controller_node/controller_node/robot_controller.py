@@ -10,7 +10,7 @@ class Controller(Node):
         super().__init__('robot_controller')
 
         self.traffic_sign_detector_subscription = self.create_subscription(TrafficSign, '/sign_topic', self.get_traffic_sign, 10)
-        self.traffic_light_checker_subscription = self.create_subscription(TrafficLight, '/traffic_light', self.get_traffic_sign, 10)
+        self.traffic_light_checker_subscription = self.create_subscription(TrafficLight, '/traffic_light', self.get_traffic_light_color, 10)
 
         self.pid_control = self.create_publisher(ControlMsg, '/pid_control', 1)
         self.sign_detector_control = self.create_publisher(ControlMsg, '/sign_controller', 1)
@@ -33,6 +33,9 @@ class Controller(Node):
 
 
     def get_traffic_light_color(self, msg):
+        """
+        Проверка сигнала светофора
+        """
         if msg.is_green == True:
             self.is_allowed_to_move = True
 
