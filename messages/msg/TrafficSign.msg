@@ -1,0 +1,1 @@
+string trafic_sign

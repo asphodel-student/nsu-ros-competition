@@ -1,4 +1,7 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
+from setuptools import find_packages
 
 package_name = 'sign_detector'
 
@@ -10,6 +13,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (f'lib/{package_name}/data', glob('data/*.*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

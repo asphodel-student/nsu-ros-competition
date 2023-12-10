@@ -29,6 +29,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ControlMsg.msg"
   "msg/TrafficLight.msg"
   "msg/TrafficSign.msg"
+  "msg/CrosswalkCheck.msg"
  )
 
 ament_package()

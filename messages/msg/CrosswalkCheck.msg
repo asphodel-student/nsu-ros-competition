@@ -1,0 +1,1 @@
+bool is_allowed_to_move_forward

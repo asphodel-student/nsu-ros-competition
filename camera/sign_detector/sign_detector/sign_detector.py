@@ -4,6 +4,8 @@ import numpy as np
 import copy
 from enum import Enum
 
+import pkg_resources
+
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -12,7 +14,11 @@ from cv_bridge import CvBridge
 from messages.msg import TrafficSign
 from messages.msg import ControlMsg
 
-Signs = Enum('Signs', ['CROSSWALK', 'PARKING', 'TUNNEL', 'CROSS', 'LEFT_TURN', 'RIGHT_TURN', 'WORK'])
+import os
+
+# Signs = Enum('Signs', ['CROSSWALK', 'PARKING', 'TUNNEL', 'CROSS', 'LEFT_TURN', 'RIGHT_TURN', 'WORK'])
+
+Signs = { 0: 'CROSSWALK', 1: 'LEFT_TURN', 2: 'PARKING', 3: 'CROSS', 4: 'TUNNEL', 5: 'WORK'}
 
 class SignDetector(Node):
     def __init__(self):
@@ -22,10 +28,14 @@ class SignDetector(Node):
         self._sift = cv2.SIFT_create()
         self._flann = cv2.BFMatcher()
 
-        dir_path = '/data/'
+        dir_path = os.path.realpath(__file__)
+        dir_path = dir_path.replace('sign_detector/sign_detector.py', 'sign_detector/')
+        dir_path += 'data/'
 
-        self._all_signs = sorted(os.listdir('robot_app/src/camera/files/'))
+        self._all_signs = sorted(os.listdir(dir_path))
 
+        # self.get_logger().info(self._all_signs)
+    
         print(self._all_signs)
         self._signs_images = [cv2.imread(dir_path + image, cv2.IMREAD_GRAYSCALE) for image in self._all_signs]
 
@@ -82,16 +92,15 @@ class SignDetector(Node):
             self.sign = self.set_current_sign(index)
 
             if old != self.sign:
-                print(self.sign)
+                self.get_logger().info(str(self.sign))
+
                 msg = TrafficSign()
-                msg.trafic_sign = index
+                msg.trafic_sign = self.sign
                 self.sign_publisher.publish(msg)
                
             
-    def set_current_sign(self, index: int) -> int:
-        _dict = { 0: Signs.CROSSWALK, 1: Signs.LEFT_TURN, 2: Signs.PARKING, 3: Signs.CROSS, 4: Signs.TUNNEL , 5: Signs.WORK}
-
-        return _dict[index]
+    def set_current_sign(self, index: int) -> str:
+        return Signs[index]
     
 
 def main():

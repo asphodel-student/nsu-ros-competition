@@ -19,97 +19,65 @@ class Controller(Node):
         self.tl_detector_control = self.create_publisher(ControlMsg, '/tl_control', 1)
         self.crosswalk_control = self.create_publisher(ControlMsg, '/crosswalk_control', 1)
 
-        self.is_allowed_to_move = True
+        self.update_timer = self.create_timer(0.01, self.global_callback)
+
+        self.is_allowed_to_move = False
         self.current_traffic_sign = -1
 
 
-    def global_callback(self, Image):
+    def global_callback(self):
         """
         
         """
-        pass
+        if self.current_traffic_sign == 'CROSSWALK':
+            self.turn_on_node(self.crosswalk_control)
+        
 
     def get_traffic_sign(self, sign_msg):
         self.current_traffic_sign = sign_msg.trafic_sign
-
-        print(self.current_traffic_sign)
+        self.get_logger().info('Detect new traffic sign: {}'.format(self.current_traffic_sign))
 
     def get_crosswalk_status(self, msg):
+        self.is_allowed_to_move = -msg.is_allowed_to_move_forward
         if msg.is_allowed_to_move_forward == True:
-            self.shutdown_pid()
+            self.shutdown_node(self.pid_control)
         else:
-            self.turn_on_pid()
+            self.turn_on_node(self.pid_control)
 
     def get_traffic_light_color(self, msg):
         """
         Проверка сигнала светофора
         """
         if msg.is_green == True:
+            self.get_logger().info('Green light!')
+
             # Turn off the light checker node
-            self.shutdown_light_checker()
+            self.shutdown_node(self.tl_detector_control)
 
             # Turn off the pid
-            self.turn_on_pid()
+            self.turn_on_node(self.pid_control)
+    
+            # Turn on the sign detector
+            self.turn_on_node(self.sign_detector_control)
 
-            # Turn off the sign detector
-            self.turn_on_sign_detector()
+            self.is_allowed_to_move = True
 
 
-    def shutdown_pid(self):
+    def shutdown_node(self, control_topic):
         """
-        Позволяет отключить ноду автоматического управления роботом
+        Позволяет отключить ноду 
         """
         msg = ControlMsg()
         msg.mode = False
-        self.pid_control.publish(msg)
+        control_topic.publish(msg)
 
-    def turn_on_pid(self):
+    def turn_on_node(self, control_topic):
         """
-        Включает ноду автоматического управления роботом
+        Позволяет включить ноду
         """
         msg = ControlMsg()
         msg.mode = True
-        self.pid_control.publish(msg)
-
-    def shutdown_sign_detector(self):
-        """
-        Позволяет выключить ноду распознавания знаков
-        """
-        msg = ControlMsg()
-        msg.mode = False
-        self.sign_detector_control.publish(msg)
-
-    def turn_on_sign_detector(self):
-        """
-        Включает ноду распознавания знаков
-        """
-        msg = ControlMsg()
-        msg.mode = True
-        self.sign_detector_control.publish(msg)
-
-    def shutdown_light_checker(self):
-        """
-        Позволяет выключить ноду распознавания сигналов светофора
-        """
-        msg = ControlMsg()
-        msg.mode = False
-        self.tl_detector_control.publish(msg)
-
-    def turn_on_sign_detector(self):
-        """
-        Включает ноду распознавания пешехода на переходе
-        """
-        msg = ControlMsg()
-        msg.mode = True
-        self.crosswalk_control.publish(msg)
-
-    def shutdown_light_checker(self):
-        """
-        Позволяет выключить ноду распознавания пешехода на переходе
-        """
-        msg = ControlMsg()
-        msg.mode = False
-        self.crosswalk_control.publish(msg)
+        control_topic.publish(msg)
 
 
 def main(args=None):

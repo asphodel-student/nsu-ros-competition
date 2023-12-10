@@ -13,14 +13,14 @@ from messages.msg import ControlMsg
 class CrosswalkChecker(Node):
     def __init__(self):
         super().__init__('crosswalk')
-        self.get_logger().info('Crosswalk-checker start to work')
+        # self.get_logger().info('Crosswalk-checker start to work')
 
         self.control_subscriber = self.create_subscription(ControlMsg, '/crosswalk_control', self.check_mode_callback, 10)
         self.depth_camera_subscription = self.create_subscription(Image, '/depth/image', self.check_crosswalk_callback, 10)
         self.crosswalk_publisher = self.create_publisher(CrosswalkCheck, '/crosswalk', 1)
 
         self.bridge = CvBridge()
-        self.mode = True
+        self.mode = False
 
     def check_crosswalk_callback(self, msg):
         if self.mode == False:
@@ -37,7 +37,7 @@ class CrosswalkChecker(Node):
         message = CrosswalkCheck()
         message.is_allowed_to_move_forward = bool(np.any(depth_image[msg.height // 2 - 50, a:b] > 0))
         
-        # self.get_logger().info('Crosswalk-checker status: {}'.format(message.is_allowed_to_move_forward))
+        self.get_logger().info('Crosswalk-checker status: {}'.format(message.is_allowed_to_move_forward))
         self.crosswalk_publisher.publish(message)
 
     def check_mode_callback(self, msg):
