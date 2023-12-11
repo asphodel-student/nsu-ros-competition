@@ -10,6 +10,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+import os
 
 from messages.msg import TrafficSign
 from messages.msg import ControlMsg
@@ -28,9 +29,10 @@ class SignDetector(Node):
         self._sift = cv2.SIFT_create()
         self._flann = cv2.BFMatcher()
 
-        dir_path = os.path.realpath(__file__)
-        dir_path = dir_path.replace('sign_detector/sign_detector.py', 'sign_detector/')
-        dir_path += 'data/'
+        #dir_path = os.path.realpath(__file__)
+        #dir_path = dir_path.replace('sign_detector/sign_detector.py', 'sign_detector/')
+        dir_path = os.environ.get("DATA_PATH")
+        dir_path += '/src/competition/camera/sign_detector/sign_detector/data/'
 
         self._all_signs = sorted(os.listdir(dir_path))
 
