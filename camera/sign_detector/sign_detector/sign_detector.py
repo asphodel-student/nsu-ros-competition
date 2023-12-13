@@ -15,6 +15,8 @@ import os
 from messages.msg import TrafficSign
 from messages.msg import ControlMsg
 
+from ament_index_python.packages import get_package_share_directory
+
 import os
 
 # Signs = Enum('Signs', ['CROSSWALK', 'PARKING', 'TUNNEL', 'CROSS', 'LEFT_TURN', 'RIGHT_TURN', 'WORK'])
@@ -23,16 +25,14 @@ Signs = { 0: 'CROSSWALK', 1: 'LEFT_TURN', 2: 'PARKING', 3: 'CROSS', 4: 'TUNNEL',
 
 class SignDetector(Node):
     def __init__(self):
-        super().__init__('sign_detecror')
+        super().__init__('sign_detector')
 
         self._bridge = CvBridge()
         self._sift = cv2.SIFT_create()
         self._flann = cv2.BFMatcher()
 
-        #dir_path = os.path.realpath(__file__)
-        #dir_path = dir_path.replace('sign_detector/sign_detector.py', 'sign_detector/')
-        dir_path = os.environ.get("DATA_PATH")
-        dir_path += '/src/competition/camera/sign_detector/sign_detector/data/'
+        package_share_directory = get_package_share_directory('sign_detector')
+        dir_path = os.path.join(package_share_directory, 'data/')
 
         self._all_signs = sorted(os.listdir(dir_path))
 
