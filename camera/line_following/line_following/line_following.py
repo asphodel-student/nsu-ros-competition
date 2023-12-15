@@ -41,7 +41,7 @@ class LineFollower(Node):
         self.frame[mask] = [0, 0, 0]
 
         self.gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-        _, self.gray = cv2.threshold(self.gray, 210, 255, cv2.THRESH_BINARY)
+        _, self.gray = cv2.threshold(self.gray, 220, 255, cv2.THRESH_BINARY)
        
         height, width = self.gray.shape
         left_border = int(0.2 * width)

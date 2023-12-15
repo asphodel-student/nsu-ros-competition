@@ -5,6 +5,7 @@ from messages.msg import TrafficSign
 from messages.msg import TrafficLight
 from messages.msg import CrosswalkCheck
 from messages.msg import ControlMsg
+from std_msgs.msg import Bool
 
 class Controller(Node):
     def __init__(self):
@@ -18,6 +19,7 @@ class Controller(Node):
         self.sign_detector_control = self.create_publisher(ControlMsg, '/sign_controller', 1)
         self.tl_detector_control = self.create_publisher(ControlMsg, '/tl_control', 1)
         self.crosswalk_control = self.create_publisher(ControlMsg, '/crosswalk_control', 1)
+        self.obstacle_control = self.create_publisher(ControlMsg, '/obstacle_control', 1)
 
         self.update_timer = self.create_timer(0.01, self.global_callback)
 
@@ -29,8 +31,12 @@ class Controller(Node):
         """
         
         """
+
         if self.current_traffic_sign == 'CROSSWALK':
             self.turn_on_node(self.crosswalk_control)
+
+        if self.current_traffic_sign == 'WORK':
+            self.turn_on_node(self.obstacle_control)
         
 
     def get_traffic_sign(self, sign_msg):

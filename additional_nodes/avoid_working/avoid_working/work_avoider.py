@@ -5,7 +5,7 @@ import time
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
-from std_msgs.msg import String, Bool
+from messages.msg import ControlMsg
 
 angle = 0.71
 
@@ -15,8 +15,7 @@ class CirclePublisher(Node):
         super().__init__('obstacle_finder') 
 
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
-        #self.sub_fiction = self.create_subscription(Bool, '/mode', self.fiction_topic, 10)
-        #self.pub_fiction = self.create_publisher(Bool, '/mode', 10)
+        self.control_subscriber = self.create_subscription(ControlMsg, '/obstacle_control', self.check_mode_callback, 10)
         self.subscription = 0
         self.cnt_obstacles = 0
 
@@ -31,6 +30,13 @@ class CirclePublisher(Node):
 
         self.current_distance = 0.0  # current distance travelled
         self.current_angle = 0.0  # current angle turned
+        self.mode = False
+
+
+    def check_mode_callback(self, msg):
+        self.mode = msg.mode
+        if self.mode == "true":
+            self.fiction_topic()
 
     def fiction_topic(self):
     # Move the robot
@@ -55,7 +61,6 @@ class CirclePublisher(Node):
         vel.linear.x = .0
         self.publisher_.publish(vel)
         
-
 
     def odom_callback(self, msg):
         # Update current distance and angle
@@ -96,8 +101,6 @@ class CirclePublisher(Node):
         global angle
         timer = 2
         forward_range =  np.array(msg.ranges)
-
-        print(self.cnt_obstacles)
 
         last_10_elements = forward_range[-10:]
         first_10_elements = forward_range[:10] 
@@ -141,8 +144,6 @@ def main(args=None):
     rclpy.init(args=args)
 
     circle_publisher = CirclePublisher()
-
-    circle_publisher.fiction_topic()
     
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically

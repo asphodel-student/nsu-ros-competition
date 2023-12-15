@@ -36,4 +36,9 @@ def generate_launch_description():
             package='crosswalk', 
             executable='crosswalk',
             name='crosswalk'),
+        Node(
+            package='avoid_working', 
+            executable='avoid_working',
+            name='avoidence'),
+        
     ])

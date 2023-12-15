@@ -19,9 +19,7 @@ from ament_index_python.packages import get_package_share_directory
 
 import os
 
-# Signs = Enum('Signs', ['CROSSWALK', 'PARKING', 'TUNNEL', 'CROSS', 'LEFT_TURN', 'RIGHT_TURN', 'WORK'])
-
-Signs = { 0: 'CROSSWALK', 1: 'LEFT_TURN', 2: 'PARKING', 3: 'CROSS', 4: 'TUNNEL', 5: 'WORK'}
+Signs = { 0: 'CROSSWALK', 1: 'LEFT_TURN', 2: 'PARKING', 3: 'CROSS', 4: 'TUNNEL', 5: 'WORK', 6: 'RIGHT_TURN'}
 
 class SignDetector(Node):
     def __init__(self):
@@ -35,8 +33,6 @@ class SignDetector(Node):
         dir_path = os.path.join(package_share_directory, 'data/')
 
         self._all_signs = sorted(os.listdir(dir_path))
-
-        # self.get_logger().info(self._all_signs)
     
         print(self._all_signs)
         self._signs_images = [cv2.imread(dir_path + image, cv2.IMREAD_GRAYSCALE) for image in self._all_signs]
