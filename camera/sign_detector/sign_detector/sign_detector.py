@@ -19,7 +19,7 @@ from ament_index_python.packages import get_package_share_directory
 
 import os
 
-Signs = { 0: 'CROSSWALK', 1: 'LEFT_TURN', 2: 'PARKING', 3: 'CROSS', 4: 'TUNNEL', 5: 'WORK', 6: 'RIGHT_TURN'}
+Signs = {0: 'CROSSWALK', 1: 'LEFT_TURN', 2: 'PARKING', 3: 'TUNNEL', 4: 'RIGHT_TURN', 5: 'WORK'}
 
 class SignDetector(Node):
     def __init__(self):
@@ -33,8 +33,7 @@ class SignDetector(Node):
         dir_path = os.path.join(package_share_directory, 'data/')
 
         self._all_signs = sorted(os.listdir(dir_path))
-    
-        print(self._all_signs)
+
         self._signs_images = [cv2.imread(dir_path + image, cv2.IMREAD_GRAYSCALE) for image in self._all_signs]
 
         self._kp = []
@@ -66,7 +65,7 @@ class SignDetector(Node):
         if self.mode == False:
             return
         
-        MIN_MATCH_COUNT = 50
+        MIN_MATCH_COUNT = 60
 
         image = self._bridge.imgmsg_to_cv2(image_data, 'mono8')
         kp1, des1 = self._sift.detectAndCompute(image, None)
