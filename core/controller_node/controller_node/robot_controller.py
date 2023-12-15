@@ -36,6 +36,7 @@ class Controller(Node):
             self.turn_on_node(self.crosswalk_control)
 
         if self.current_traffic_sign == 'WORK':
+            self.shutdown_node(self.pid_control)
             self.turn_on_node(self.obstacle_control)
         
 

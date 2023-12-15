@@ -111,14 +111,11 @@ class LineFollower(Node):
     def update_callback(self):
         cmd_vel = Twist()
 
-        if self.mode == False:
-            cmd_vel.linear.x = 0.0
-            cmd_vel.angular.z = 0.0
-        else:
+        if self.mode:
             cmd_vel.linear.x = 0.2
             cmd_vel.angular.z = (self.error * 90.0 / 400) / 16
 
-        self.cmd_vel_pub.publish(cmd_vel)
+            self.cmd_vel_pub.publish(cmd_vel)
 
     def check_mode_callback(self, msg):
         self.mode = msg.mode

@@ -25,9 +25,11 @@ class CirclePublisher(Node):
     def lidar_callback(self, msg):
         if not self.mode:
             return
+        
+        vel = Twist()
 
         if self.obstacle_avoidence > 3:
-            vel = Twist()
+
             vel.angular.z = 1.0
             vel.linear.x = .2
             self.publisher_.publish(vel)
@@ -39,9 +41,9 @@ class CirclePublisher(Node):
             rclpy.shutdown()
 
         if self.obstacle_avoidence == 0:
-            vel = Twist()
+
             vel.angular.z = 0.0
-            vel.linear.x = 0.9
+            vel.linear.x = 0.42
             self.publisher_.publish(vel)
             time.sleep(2)
             vel.angular.z = .87
@@ -62,7 +64,6 @@ class CirclePublisher(Node):
         first_10_elements = forward_range[:10]
         
         forward_range = np.concatenate((first_10_elements, last_10_elements)) 
-
 
         if np.min(forward_range) > 0.2:
             vel.linear.x = 0.2
