@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
              'avoid_working = avoid_working.work_avoider:main',
-              'test = avoid_working.test:main'
+              'test = avoid_working.avoid_obstacle:main'
         ],
     },
 )
