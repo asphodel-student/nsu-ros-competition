@@ -1,12 +1,12 @@
 import rclpy
 from rclpy.node import Node
 import numpy as np
-import time
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from messages.msg import ControlMsg
 
-angle = 0.69
+angle = - 0.83
+thread = 0
 
 class CirclePublisher(Node):
 
@@ -19,8 +19,17 @@ class CirclePublisher(Node):
         self.mode = False
         self.obstacle_avoidence = 0
 
+        self.start_clock = False
+
     def check_mode_callback(self, msg):
         self.mode = msg.mode
+
+    def sleep(self, duration):
+        clock = self.get_clock()
+        end_time = clock.now() + rclpy.time.Duration(seconds=duration)
+        while clock.now() < end_time:
+            pass
+
 
     def lidar_callback(self, msg):
         if not self.mode:
@@ -28,28 +37,29 @@ class CirclePublisher(Node):
         
         vel = Twist()
 
-        if self.obstacle_avoidence > 3:
+        if self.obstacle_avoidence > 2:
 
             vel.angular.z = 1.0
-            vel.linear.x = .2
+            vel.linear.x = .35
             self.publisher_.publish(vel)
-            time.sleep(2)
+            self.sleep(1.5)
             vel.angular.z = .0
             vel.linear.x = .0
             self.publisher_.publish(vel)
             self.destroy_node()
             rclpy.shutdown()
 
-        if self.obstacle_avoidence == 0:
 
+        if self.obstacle_avoidence == 0:
+            
             vel.angular.z = 0.0
-            vel.linear.x = 0.42
+            vel.linear.x = 0.47
             self.publisher_.publish(vel)
-            time.sleep(2)
-            vel.angular.z = .87
+            self.sleep(3)
+            vel.angular.z = .90
             vel.linear.x = .0
             self.publisher_.publish(vel)
-            time.sleep(2)
+            self.sleep(3)
             vel.angular.z = .0
             vel.linear.x = .0
             self.publisher_.publish(vel)
@@ -58,10 +68,10 @@ class CirclePublisher(Node):
         
         vel = Twist()
         global angle
-        timer = 2
+
         forward_range =  np.array(msg.ranges)
-        last_10_elements = forward_range[-10:]
-        first_10_elements = forward_range[:10]
+        last_10_elements = forward_range[-20:]
+        first_10_elements = forward_range[:20]
         
         forward_range = np.concatenate((first_10_elements, last_10_elements)) 
 
@@ -73,28 +83,28 @@ class CirclePublisher(Node):
             self.publisher_.publish(stop_movement)
 
             straight_movement = Twist()
-            straight_movement.linear.x = -0.18
+            straight_movement.linear.x = -.175
             self.publisher_.publish(straight_movement)
-            time.sleep(timer)
+            self.sleep(3)
 
             vel.angular.z = - angle
             self.publisher_.publish(vel)
-            time.sleep(timer)
+            self.sleep(2)
 
-            straight_movement.linear.x = 0.2
+            straight_movement.linear.x = 0.3
             self.publisher_.publish(straight_movement)
-            time.sleep(timer)
+            self.sleep(2)
 
             twist_to_straight = Twist() 
-            twist_to_straight.angular.z = angle + .09
+            twist_to_straight.angular.z = angle + .11
             self.publisher_.publish(twist_to_straight)
-            time.sleep(timer)
+            self.sleep(2.5)
 
             angle *= -1
 
             straight_movement.linear.x = 0.16
             self.publisher_.publish(straight_movement)
-            time.sleep(timer)
+            self.sleep(2)
 
             self.obstacle_avoidence += 1
 
@@ -104,6 +114,7 @@ def main(args=None):
     circle_publisher = CirclePublisher()
 
     rclpy.spin(circle_publisher)
+
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
