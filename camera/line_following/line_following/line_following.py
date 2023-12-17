@@ -21,12 +21,14 @@ class LineFollower(Node):
         self.frame = None
         self.gray = None
         self.dst = None
-        self.prevpt1 = np.array([150, 40])
-        self.prevpt2 = np.array([560, 40])
+        self.prevpt1 = np.array([150, 60])
+        self.prevpt2 = np.array([560, 60])
         self.error = 0
 
         # This node works when this flag is True
         self.mode = False
+
+        self.is_stopped = False
 
     def subs_callback(self, msg):
         if self.mode == False:
@@ -88,21 +90,11 @@ class LineFollower(Node):
         self.prevpt2 = np.array(cpt2)
 
         fpt = ((cpt1[0] + cpt2[0]) / 2, (cpt1[1] + cpt2[1]) / 2 + self.gray.shape[0] // 3 * 2)
-        cv2.cvtColor(self.dst, cv2.COLOR_GRAY2BGR)
-
-        # cv2.circle(self.frame, (int(fpt[0]), int(fpt[1])), 2, (0, 0, 255), 2)
-        # cv2.circle(self.dst, (int(cpt1[0]), int(cpt1[1])), 2, (0, 0, 255), 2)
-        # cv2.circle(self.dst, (int(cpt2[0]), int(cpt2[1])), 2, (255, 0, 0), 2)
 
         cv2.circle(self.dst, (int(self.prevpt1[0]), int(self.prevpt1[1])), 2, 122, 2)
         cv2.circle(self.dst, (int(self.prevpt2[0]), int(self.prevpt2[1])), 2, 122, 2)
 
         self.error = self.dst.shape[1] // 2 - fpt[0]
-
-        # if self.error < 0:
-        #     self.error = -self.error
-
-        # self.get_logger().info(str(self.error))
 
         cv2.imshow("camera", self.gray)
         cv2.imshow("gray", self.dst)
@@ -111,14 +103,23 @@ class LineFollower(Node):
     def update_callback(self):
         cmd_vel = Twist()
 
-        if self.mode:
+        if self.mode == False:
+            cmd_vel.linear.x = 0.0
+            cmd_vel.angular.z = 0.0
+
+            if self.is_stopped == False:
+                self.cmd_vel_pub.publish(cmd_vel)
+                self.is_stopped = True
+        else:
             cmd_vel.linear.x = 0.2
             cmd_vel.angular.z = (self.error * 90.0 / 400) / 16
-
             self.cmd_vel_pub.publish(cmd_vel)
 
     def check_mode_callback(self, msg):
         self.mode = msg.mode
+
+        if self.mode == True:
+            self.is_stopped = False
 
 
 def main(args=None):
