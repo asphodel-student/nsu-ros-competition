@@ -99,7 +99,7 @@ class SignDetector(Node):
         if len(confidence) != 0:
             index, length, data = max(confidence, key=lambda x: x[1])
 
-            self.get_logger().info('POINTS: {}'.format(length))
+            # self.get_logger().info('POINTS: {}'.format(length))
 
             old = copy.copy(self.sign)
             self.sign = self.set_current_sign(index)
@@ -112,14 +112,14 @@ class SignDetector(Node):
                 self.sign_publisher.publish(msg)
 
                 self.mega_kostyl += 1
-                self.get_logger().info('{}'.format(self.mega_kostyl))
+                # self.get_logger().info('{}'.format(self.mega_kostyl))
 
                 if self.mega_kostyl == 1:
                     self.MIN_MATCH_COUNT = 17
                 if self.mega_kostyl == 3:
                     self.MIN_MATCH_COUNT = 40
                 if self.mega_kostyl == 5:
-                    self.MIN_MATCH_COUNT = 18
+                    self.MIN_MATCH_COUNT = 20
             
     def set_current_sign(self, index: int) -> str:
         return Signs[index]

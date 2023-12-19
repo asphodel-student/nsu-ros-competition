@@ -29,7 +29,7 @@ class LineFollower(Node):
 
         self.declare_parameter('kp', 0.0140625)  
         self.declare_parameter('ki', 0.0)  
-        self.declare_parameter('kd', 0.0001)  
+        self.declare_parameter('kd', 0.001)  
         self.declare_parameter('target_speed', 0.2)
         self.declare_parameter('max_steering_angle', 0.5)
 
@@ -41,7 +41,7 @@ class LineFollower(Node):
         self.frame_rate = self.get_parameter('frame_rate').value
         self._current_frame = 0
 
-        self.get_logger().info('KP: {}'.format(self.kp))
+        # self.get_logger().info('KP: {}'.format(self.kp))
 
         self.prev_error = 0.0
         self.integral = 0.0
@@ -53,11 +53,11 @@ class LineFollower(Node):
         if self.mode == False:
             return
         
-        if self._current_frame != self.frame_rate:
-            self._current_frame += 1
-            return
-        else:
-            self._current_frame = 0
+        # if self._current_frame != self.frame_rate:
+        #     self._current_frame += 1
+        #     return
+        # else:
+        #     self._current_frame = 0
         
         self.frame = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
@@ -114,15 +114,19 @@ class LineFollower(Node):
 
         fpt = ((cpt1[0] + cpt2[0]) / 2, (cpt1[1] + cpt2[1]) / 2 + self.gray.shape[0] // 3 * 2)
 
+        # print(cpt1[0] + cpt2[0])
+        
+
         cv2.circle(self.frame, (int(fpt[0]), int(fpt[1])), 2, (0, 0, 255), 2)
         cv2.circle(self.dst, (int(cpt1[0]), int(cpt1[1])), 2, (0, 0, 255), 2)
         cv2.circle(self.dst, (int(cpt2[0]), int(cpt2[1])), 2, (255, 0, 0), 2)
 
         self.error = (self.dst.shape[1] // 2) - fpt[0]
+        # self.get_logger().info('{}'.format(self.error))
 
-        cv2.imshow("camera", self.gray)
-        cv2.imshow("gray", self.dst)
-        cv2.waitKey(1)
+        # cv2.imshow("camera", self.gray)
+        # cv2.imshow("gray", self.dst)
+        # cv2.waitKey(1)
 
     def pid_control(self, error):
         self.integral += error
@@ -145,7 +149,7 @@ class LineFollower(Node):
                 self.cmd_vel_pub.publish(cmd_vel)
                 self.is_stopped = True
         else:
-            cmd_vel.linear.x = max(0.2 * ((1 - abs(self.error) / (424 // 2)))**3.0, 0.0)
+            cmd_vel.linear.x = max(0.2 * ((1 - abs(self.error) / (848 // 2)))**5.0, 0.0)
             cmd_vel.angular.z = self.pid_control(self.error)
             self.cmd_vel_pub.publish(cmd_vel)
 
