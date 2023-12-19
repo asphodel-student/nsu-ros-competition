@@ -18,6 +18,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 from geometry_msgs.msg import Quaternion
 from math import degrees
+from sensor_msgs.msg import LaserScan
 
 def euler_from_quaternion(quaternion):
     """
@@ -52,6 +53,7 @@ class Publisher(Node):
 
         self.pid_control = self.create_publisher(ControlMsg, 'pid_control', 1)
         self.turn_control = self.create_subscription(ControlMsg, '/turn_control', self.check_mode, 10)
+        # self.lidar_sub = self.create_subscription(LaserScan, '/scan', self.lidar_callback, 10)
 
         # Get odometry
         self.suka = self.create_subscription(Odometry, '/odom', self.get_odom, 10)
@@ -64,6 +66,9 @@ class Publisher(Node):
         self.stage = 0
         self.wait = 0
         self.left = -1
+        self.ask = 0
+        self.left = 1
+        self.check = 0
         msg = ControlMsg()
         msg.mode = False
         self.pid_control.publish(msg)
@@ -89,15 +94,29 @@ class Publisher(Node):
 
     def get_directiion(self):
         if self.direction == None:
-            self.direction = 'LEFT'
+            
+            self.direction = 'RIGHT'
 
     def is_on_end_of_road(self):
         # self.get_logger().info('{}, {}'.format(self.pose.x, self.start_x))
-        if abs(self.pose.x - self.start_x) < 0.01:
+        if abs(self.pose.x - self.start_x - 0.06) < 0.01:
             self.is_need_to_turn = True
         else:
             self.is_need_to_turn = False
-        
+    
+    # def lidar_callback(self, msg):
+    #     # if self.mode == False:
+    #     #     return 
+    #     # if self.check == 0:
+    #     #     
+    #     #     self.check = lidar_range[330]
+    #     #     self.get_logger().info('{}'.format(self.check))
+    #     lidar_range = np.array(msg.ranges) 
+
+        # self.get_logger().info('{}, {}, {}, {}, {}, {}, {}, {},'.format(lidar_range[0], lidar_range[350], lidar_range[340], lidar_range[330], lidar_range[320], lidar_range[310], lidar_range[300], lidar_range[290]))
+
+
+
     def timer_callback(self):
         if self.mode == True:
             self.get_directiion()
@@ -105,6 +124,7 @@ class Publisher(Node):
 
             if self.stage == 'TURNING':
                 if self.is_need_to_turn:
+                    # self.get_logger().info('{}, {}'.format(self.destination_angle, self.orientation))
                     self.turn()
                 else:
                     self.stage = 'DRIVING'
@@ -157,13 +177,15 @@ class Publisher(Node):
 
     def turn(self):
         if self.is_need_to_turn:
+            if self.second_turn == True:
+                self.destination_angle = 3.0
+
             if abs(self.destination_angle - self.orientation) > 0.01:
-                # self.get_logger().info('{} {}'.format(self.destination_angle, self.orientation))
                 twist = Twist()
-                # twist.linear.x = 0.01
-                twist.linear.x = 0.0
+                twist.linear.x = 0.08
+                # twist.linear.x = 0.0
                 # twist.angular.z = -0.32 if self.direction == 'RIGHT' else 0.32
-                twist.angular.z = -0.3 if self.direction == 'RIGHT' else 0.3
+                twist.angular.z = -0.3 if self.direction == 'RIGHT' else -0.3
                 self.publisher.publish(twist)
             else:   
                 self.is_need_to_turn = False

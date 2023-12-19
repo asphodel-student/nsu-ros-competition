@@ -77,7 +77,7 @@ class Parking(Node):
 
     def check_mode(self, msg):
         self.mode = msg.mode
-
+self.get_logger().info('{} {}'.format(self.destination_angle, self.orientation))
     def odom_callback(self, msg):
         if self.mode == False:
             return

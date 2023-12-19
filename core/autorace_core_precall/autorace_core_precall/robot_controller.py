@@ -60,8 +60,8 @@ class Controller(Node):
                 self.turn_on_node(self.turn_control)
                 self.is_turn_work = True
         
-        if self.current_traffic_sign == 'TUNNEL':
-            self.shutdown_node(self.pid_control)
+        # if self.current_traffic_sign == 'TUNNEL':
+        #     self.shutdown_node(self.pid_control)
 
     def get_traffic_sign(self, sign_msg):
         self.current_traffic_sign = sign_msg.trafic_sign

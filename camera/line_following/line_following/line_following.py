@@ -28,7 +28,8 @@ class LineFollower(Node):
         self.is_stopped = False
 
         self.declare_parameter('kp', 0.0140625)  
-        self.declare_parameter('ki', 0.0)  
+        # self.declare_parameter('kp', 0.02)  
+        self.declare_parameter('ki', 0.00001)  
         self.declare_parameter('kd', 0.001)  
         self.declare_parameter('target_speed', 0.2)
         self.declare_parameter('max_steering_angle', 0.5)
@@ -129,6 +130,7 @@ class LineFollower(Node):
         # cv2.waitKey(1)
 
     def pid_control(self, error):
+        self.integral *= 0.1
         self.integral += error
         derivative = error - self.prev_error
 
