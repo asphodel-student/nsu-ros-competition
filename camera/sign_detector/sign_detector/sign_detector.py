@@ -115,7 +115,7 @@ class SignDetector(Node):
                 # self.get_logger().info('{}'.format(self.mega_kostyl))
 
                 if self.mega_kostyl == 1:
-                    self.MIN_MATCH_COUNT = 17
+                    self.MIN_MATCH_COUNT = 15
                 if self.mega_kostyl == 3:
                     self.MIN_MATCH_COUNT = 40
                 if self.mega_kostyl == 5:
