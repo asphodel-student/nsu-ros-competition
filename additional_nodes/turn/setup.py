@@ -1,8 +1,6 @@
 from setuptools import find_packages, setup
-from glob import glob
-import os
 
-package_name = 'controller_node'
+package_name = 'turn'
 
 setup(
     name=package_name,
@@ -12,18 +10,17 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='asphodel',
-    maintainer_email='asphodel@todo.todo',
+    maintainer='velor',
+    maintainer_email='velor@todo.todo',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'controller = controller_node.robot_controller:main'
+            'turn = turn.turn:main'
         ],
     },
 )

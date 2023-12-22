@@ -19,8 +19,6 @@ class CrosswalkChecker(Node):
         self.depth_camera_subscription = self.create_subscription(Image, '/depth/image', self.check_crosswalk_callback, 10)
         self.crosswalk_publisher = self.create_publisher(CrosswalkCheck, '/crosswalk', 1)
 
-        self.test_pub = self.create_publisher(Image, '/suck_my_dick', 1)
-
         self.bridge = CvBridge()
         self.mode = False
 
@@ -38,11 +36,8 @@ class CrosswalkChecker(Node):
 
         message = CrosswalkCheck()
         message.is_allowed_to_move_forward = bool(np.any(depth_image[msg.height // 2 - 50:msg.height // 2, a:b] > 0))
-
-        self.test_pub.publish(self.bridge.cv2_to_imgmsg(depth_image))
         
-        self.get_logger().info('Crosswalk-checker status: {}'.format(message.is_allowed_to_move_forward))
-
+        # self.get_logger().info('Crosswalk-checker status: {}'.format(message.is_allowed_to_move_forward))
 
         self.crosswalk_publisher.publish(message)
 

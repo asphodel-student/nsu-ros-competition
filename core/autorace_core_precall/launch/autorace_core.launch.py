@@ -13,7 +13,7 @@ def generate_launch_description():
     return LaunchDescription([
        
         Node(
-            package='controller_node', 
+            package='autorace_core_precall', 
             executable='controller',
             name='controller'),
         
@@ -40,5 +40,13 @@ def generate_launch_description():
             package='avoid_working', 
             executable='avoid_working',
             name='avoidence'),
+        Node(
+            package='turn', 
+            executable='turn',
+            name='turn'),
+        # Node(
+        #     package='parking', 
+        #     executable='parking',
+        #     name='parking'),
         
     ])
